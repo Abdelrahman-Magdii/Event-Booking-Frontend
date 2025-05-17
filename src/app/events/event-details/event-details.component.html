@@ -1,68 +1,88 @@
-<!--<div class="event-details-container" *ngIf="event">-->
-<!--  <div class="event-header">-->
-<!--    <h1>{{ event?.name }}</h1>-->
-<!--    <div class="event-actions">-->
-<!--      <button *ngIf="authService.isAdmin()"-->
-<!--              [routerLink]="['/admin/events/edit', event?.id]"-->
-<!--              class="btn btn-edit">-->
-<!--        Edit Event-->
-<!--      </button>-->
-<!--      <a routerLink="/events" class="btn btn-back">Back to Events</a>-->
-<!--    </div>-->
-<!--  </div>-->
+<div class="event-details-container">
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading event details...</p>
+  </div>
 
-<!--  <div class="event-content">-->
-<!--    <div class="event-image">-->
-<!--&lt;!&ndash;      <img [src]="event?.imageUrl" [alt]="event?.name">&ndash;&gt;-->
-<!--    </div>-->
+  <!-- Error state -->
+  <div *ngIf="error && !loading" class="error-state">
+    <div class="error-icon">!</div>
+    <p>{{ error }}</p>
+    <a routerLink="/events" class="btn-back">Back to Events</a>
+  </div>
 
-<!--    <div class="event-info">-->
-<!--      <div class="event-meta">-->
-<!--        <div class="meta-item">-->
-<!--          <span class="meta-label">Date:</span>-->
-<!--          <span class="meta-value">{{ event?.date | date:'fullDate' }}</span>-->
-<!--        </div>-->
-<!--        <div class="meta-item">-->
-<!--          <span class="meta-label">Time:</span>-->
-<!--&lt;!&ndash;          <span class="meta-value">{{ event?.date | date:'shortTime' }}</span>&ndash;&gt;-->
-<!--        </div>-->
-<!--        <div class="meta-item">-->
-<!--          <span class="meta-label">Venue:</span>-->
-<!--&lt;!&ndash;          <span class="meta-value">{{ event?.venue }}</span>&ndash;&gt;-->
-<!--        </div>-->
-<!--        <div class="meta-item">-->
-<!--          <span class="meta-label">Category:</span>-->
-<!--&lt;!&ndash;          <span class="meta-value">{{ event?.category | titlecase }}</span>&ndash;&gt;-->
-<!--        </div>-->
-<!--        <div class="meta-item">-->
-<!--          <span class="meta-label">Price:</span>-->
-<!--&lt;!&ndash;          <span class="meta-value">{{ event?.price | currency:'USD':'symbol':'1.2-2' }}</span>&ndash;&gt;-->
-<!--        </div>-->
-<!--      </div>-->
+  <!-- Event content -->
+  <div *ngIf="event && !loading" class="event-content">
+    <!-- Header section -->
+    <div class="event-header">
+      <div class="breadcrumb">
+        <a routerLink="/events">Events</a> / <span>{{ event?.name }}</span>
+      </div>
 
-<!--      <div class="event-description">-->
-<!--        <h3>About the Event</h3>-->
-<!--&lt;!&ndash;        <p>{{ event?.description }}</p>&ndash;&gt;-->
-<!--      </div>-->
+      <div class="header-actions">
+        <button *ngIf="authService.isAdmin()"
+                [routerLink]="['/admin/events/edit', event?.id]"
+                class="btn-edit">
+          Edit Event
+        </button>
+        <button routerLink="/events" class="btn-back">
+          ← Back to Events
+        </button>
+      </div>
+    </div>
 
-<!--      <div class="booking-section">-->
-<!--        <div *ngIf="isBooked" class="booked-message">-->
-<!--          <i class="icon check-circle"></i>-->
-<!--          <span>You have booked this event</span>-->
-<!--        </div>-->
-<!--        <button *ngIf="!isBooked && authService.currentUserValue"-->
-<!--                (click)="bookEvent()"-->
-<!--                class="btn btn-book">-->
-<!--&lt;!&ndash;          Book Now ({{ event.price | currency:'USD':'symbol':'1.2-2' }})&ndash;&gt;-->
-<!--        </button>-->
-<!--        <div *ngIf="!authService.currentUserValue" class="login-prompt">-->
-<!--          <p>Please <a routerLink="/login">login</a> to book this event</p>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--</div>-->
+    <!-- Main content -->
+    <div class="event-main">
+      <!-- Event image -->
+      <div class="event-image">
+        <img [src]="event.imageUrl || 'assets/images/event-placeholder.jpg'" [alt]="event?.name">
+      </div>
 
-<!--<div *ngIf="!event" class="loading">-->
-<!--  <p>Loading event details...</p>-->
-<!--</div>-->
+      <!-- Event info -->
+      <div class="event-info">
+        <h1>{{ event?.name }}</h1>
+
+        <div class="event-meta">
+          <div class="meta-item">
+            <span class="meta-icon">📅</span>
+            <span class="meta-text">{{ formatDate(event?.date) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">⏰</span>
+            <span class="meta-text">{{ formatTime(event?.date) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">📍</span>
+            <span class="meta-text">{{ event?.venue || 'Online Event' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">🏷️</span>
+            <span class="meta-text">{{ event?.category }}</span>
+          </div>
+          <div *ngIf="event.price" class="meta-item">
+            <span class="meta-icon">💵</span>
+            <span class="meta-text">{{ event?.price | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <!-- Booking section -->
+        <div class="booking-section">
+          <div *ngIf="isBooked" class="booked-message">
+            <span class="check-icon">✓</span>
+            <span>You're attending this event</span>
+          </div>
+          <button *ngIf="!isBooked && authService.currentUserValue"
+                  (click)="bookEvent()"
+                  class="btn-book">
+            Book Now
+          </button>
+          <div *ngIf="!authService.currentUserValue" class="login-prompt">
+            <p>Please <a [routerLink]="['/login']" [queryParams]="{ returnUrl: '/events/' + event.id }">login</a> to book this event</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

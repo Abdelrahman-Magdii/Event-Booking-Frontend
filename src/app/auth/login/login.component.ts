@@ -2,15 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../shared/services/auth.service';
-import { NgIf } from '@angular/common';
+import {NgClass, NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
+  standalone: true,
   imports: [
     ReactiveFormsModule,
     NgIf,
-    RouterLink
+    RouterLink,
+    NgClass
   ],
   styleUrls: ['./login.component.css']
 })
@@ -18,6 +20,7 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
   error = '';
+  submitted = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -32,7 +35,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     // Redirect if already logged in
-    if (this.authService.currentUserValue) {
+    if (this.authService.isAuthenticated()) {
       this.router.navigate(['/']);
     }
   }
@@ -41,8 +44,10 @@ export class LoginComponent implements OnInit {
   get f() { return this.loginForm.controls; }
 
   onSubmit() {
+    this.submitted = true;
     this.error = '';
 
+    // Stop here if form is invalid
     if (this.loginForm.invalid) {
       return;
     }
@@ -54,11 +59,16 @@ export class LoginComponent implements OnInit {
       password: this.loginForm.value.password
     };
 
+    console.log('Attempting login with credentials:', JSON.stringify(credentials));
+
     this.authService.login(credentials).subscribe({
-      next: () => {
+      next: (user) => {
+        console.log('Login successful:', user);
+        // Navigate to home page or intended destination
         this.router.navigate(['/']);
       },
       error: (error) => {
+        console.error('Login error:', error);
         this.error = error.message || 'Login failed. Please check your credentials.';
         this.loading = false;
       },

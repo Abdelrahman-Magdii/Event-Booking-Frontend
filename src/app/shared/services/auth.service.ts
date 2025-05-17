@@ -1,10 +1,11 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import {BehaviorSubject, Observable, throwError} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
+import {environment} from '../../../environments/environment';
+import {Router} from '@angular/router';
 
-interface AuthResponse {
+export interface AuthResponse {
   token: string;
   id: number;
   email: string;
@@ -13,13 +14,12 @@ interface AuthResponse {
   roles: string[];
 }
 
-interface User {
+export interface User {
   id: number;
   email: string;
   firstName: string;
   lastName: string;
   roles: string[];
-  token?: string;
 }
 
 @Injectable({
@@ -29,150 +29,198 @@ export class AuthService {
   private readonly apiUrl = environment.apiUrl;
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser$: Observable<User | null>;
-  private readonly token: string | null = null;
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  public isAuthenticated$: Observable<boolean>;
 
-
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
     this.currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
     this.currentUser$ = this.currentUserSubject.asObservable();
-    this.currentUserSubject = new BehaviorSubject<any | null>(
-      JSON.parse(localStorage.getItem('currentUser') || 'null')
-    );
-    this.token = localStorage.getItem('authToken');
-    this.checkInitialAuthState();
-
+    this.isAuthenticatedSubject = new BehaviorSubject<boolean>(this.isTokenValid());
+    this.isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   }
 
-  // Get the current user value
+  // ========== PUBLIC METHODS ========== //
+
   public get currentUserValue(): User | null {
     return this.currentUserSubject.value;
   }
 
-  // Add proper headers for all requests
-  private getHeaders(): HttpHeaders {
+  public getToken(): string | null {
+    return localStorage.getItem('token')
+  }
+
+  public getHeaders(): HttpHeaders {
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     });
   }
 
-
-
-  getToken(): string | null {
-    return this.token;
+  public getAuthHeaders(): HttpHeaders {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('No authentication token available');
+    }
+    return this.getHeaders().set('Authorization', `Bearer ${token}`);
   }
 
-  isAuthenticated(): boolean {
-    return !!this.token;
+  public isAuthenticated(): boolean {
+    return this.isTokenValid();
   }
 
-  login(credentials: { email: any; password: any }): Observable<{ token: string }> {
-    return this.http.post<{ token: string }>(
+  public isLoggedIn(): boolean {
+    return this.isAuthenticated();
+  }
+
+  public login(credentials: { email: string; password: string }): Observable<User> {
+    if (!credentials.email || !credentials.password) {
+      return throwError(() => new Error('Email and password are required'));
+    }
+
+    return this.http.post<AuthResponse>(
       `${this.apiUrl}/auth/login`,
       credentials,
-      {
-        headers: { 'Content-Type': 'application/json' }
-      }
+      {headers: this.getHeaders()}
     ).pipe(
       tap(response => {
-        localStorage.setItem('authToken', response.token);
-        this.isAuthenticatedSubject.next(true);
+        console.log('Login response:', response);
+        console.log('Token type:', typeof response.token);
       }),
-      catchError(err => {
-        console.error("Login error:", err);
-        throw err;
-      })
+      map(response => {
+        if (!response?.token) {
+          throw new Error('Invalid server response - missing token');
+        }
+
+        // Verify token is a string
+        if (typeof response.token !== 'string') {
+          console.error('Received non-string token:', response.token);
+          throw new Error('Invalid token format received from server');
+        }
+
+        return this.handleAuthResponse(response);
+      }),
+      catchError(error => this.handleAuthError(error, 'Login'))
     );
   }
 
-  register(userData: any): Observable<any> {
-    return this.http.post<any>(
+  public register(registerData: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+  }): Observable<User> {
+    return this.http.post<AuthResponse>(
       `${this.apiUrl}/auth/register`,
-      userData,
-      { headers: this.getHeaders() }
+      registerData,
+      {headers: this.getHeaders()}
     ).pipe(
-      catchError(error => {
-        console.error('Registration error:', error);
-        return throwError(() => new Error(
-          error.error?.message || 'Registration failed. Please try again.'
-        ));
-      })
+      map(response => {
+        if (!response?.token) {
+          throw new Error('Registration successful but no token received');
+        }
+        return this.handleAuthResponse(response);
+      }),
+      catchError(error => this.handleAuthError(error, 'Registration'))
     );
   }
 
-  // Logout user
-  logout(): void {
+  public logout(): void {
     this.clearUserData();
     this.currentUserSubject.next(null);
+    this.isAuthenticatedSubject.next(false);
+    this.router.navigate(['/login']);
   }
 
-  // Check if user is logged in
-  isLoggedIn(): boolean {
-    const user = this.currentUserValue;
-    return !!user && this.isTokenValid(user.token);
-  }
-
-  // Check if user has admin role
-  isAdmin(): boolean {
+  public isAdmin(): boolean {
     const user = this.currentUserValue;
     return user ? user.roles.includes('ADMIN') : false;
   }
 
-  // Check if user has specific role
-  hasRole(role: string): boolean {
+  public hasRole(role: string): boolean {
     const user = this.currentUserValue;
     return user ? user.roles.includes(role) : false;
   }
 
-  // Private helper methods
-  private mapAuthResponseToUser(response: AuthResponse): User {
-    return {
+  // ========== PRIVATE METHODS ========== //
+
+  private handleAuthResponse(response: AuthResponse): User {
+    const user: User = {
       id: response.id,
       email: response.email,
       firstName: response.firstName,
       lastName: response.lastName,
-      roles: response.roles,
-      token: response.token
+      roles: response.roles
     };
+
+    this.storeUserData(user, response.token);
+    return user;
   }
 
-  private storeUserData(user: User): void {
+  private storeUserData(user: User, token: string): void {
     localStorage.setItem('currentUser', JSON.stringify(user));
-    localStorage.setItem('token', user.token || '');
+
+    if (token) {
+      localStorage.setItem('token', token);
+      console.log('Token stored successfully');
+    } else {
+      console.error('Attempted to store invalid token:', token);
+      throw new Error('Invalid token format');
+    }
+
     this.currentUserSubject.next(user);
+    this.isAuthenticatedSubject.next(true);
   }
 
   private clearUserData(): void {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('token');
+    console.log('User data cleared from storage');
   }
 
   private getUserFromStorage(): User | null {
     const userData = localStorage.getItem('currentUser');
-    return userData ? JSON.parse(userData) : null;
+    try {
+      return userData ? JSON.parse(userData) : null;
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+      return null;
+    }
   }
 
-  private isTokenValid(token?: string): boolean {
+  private isTokenValid(): boolean {
+    const token = this.getToken();
     if (!token) return false;
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.exp * 1000 > Date.now();
+      const isExpired = payload.exp * 1000 < Date.now();
+      if (isExpired) {
+        console.log('Token expired');
+        this.logout();
+      }
+      return !isExpired;
     } catch (e) {
+      console.error('Token validation error:', e);
       return false;
     }
   }
 
+  private handleAuthError(error: any, context: string): Observable<never> {
+    console.error(`${context} error:`, error);
 
+    let errorMessage = 'An error occurred';
+    if (error.status === 401) {
+      errorMessage = 'Invalid credentials';
+    } else if (error.status === 400) {
+      errorMessage = error.error?.message || 'Invalid request';
+    } else if (error.error?.message) {
+      errorMessage = error.error.message;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
 
-  private checkInitialAuthState(): void {
-    const token = localStorage.getItem('authToken');
-    this.isAuthenticatedSubject.next(!!token);
-  }
-
-  isAuthenticated$(): Observable<boolean> {
-    return this.isAuthenticatedSubject.asObservable();
+    return throwError(() => new Error(errorMessage));
   }
 
 }

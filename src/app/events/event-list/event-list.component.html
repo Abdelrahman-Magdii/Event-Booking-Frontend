@@ -1,36 +1,78 @@
 <div class="event-list-container">
-  <div class="header">
-    <h1>Upcoming Events</h1>
-    <div *ngIf="authService.currentUser$" class="user-info">
-      Welcome, {{ authService.currentUserValue?.firstName + ' ' + authService.currentUserValue?.lastName}}!
-      <button (click)="authService.logout()" class="btn btn-logout">Logout</button>
-    </div>
-    <div *ngIf="!authService.currentUserValue" class="auth-actions">
-      <a routerLink="/login" class="btn btn-login">Login</a>
-      <a routerLink="/register" class="btn btn-register">Register</a>
-    </div>
-    <div *ngIf="authService.isAdmin()" class="admin-actions">
-      <a routerLink="/admin/dashboard" class="btn btn-admin">Admin Dashboard</a>
-    </div>
+  <!-- Error message -->
+  <div *ngIf="error" class="error-message">
+    <span class="icon">!</span>
+    <span>{{ error }}</span>
   </div>
 
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <span>Loading events...</span>
+  </div>
+
+  <!-- Events grid -->
   <div class="events-grid">
     <div *ngFor="let event of events" class="event-card-wrapper">
       <div class="event-card">
-        <h3>{{event.name}}</h3>
-        <p>{{event.description}}</p>
+        <div class="card-header">
+          <div class="date-badge">
+            <span class="day">{{ event.startTime | date:'d' }}</span>
+            <span class="month">{{ event.startTime | date:'MMM' }}</span>
+          </div>
+          <h3>{{ event.title }}</h3>
+        </div>
+
+        <p class="event-description">{{ event.description }}</p>
+
         <div class="event-meta">
-          <span class="location">{{event.description}}</span>
-          <span class="time">{{event.startTime | date:'short'}} - {{event.endTime | date:'shortTime'}}</span>
+          <div class="meta-item">
+            <span class="icon">⏱</span>
+            <span>{{ event.startTime | date:'shortTime' }} - {{ event.endTime | date:'shortTime' }}</span>
+          </div>
         </div>
+
         <div class="event-tags">
-          <span *ngFor="let tag of event.category" class="tag">{{tag}}</span>
+          <span *ngFor="let tag of event.categories" class="tag">
+            {{ tag }}
+          </span>
         </div>
+
+        <button class="action-button">
+          <span>Details →</span>
+        </button>
       </div>
     </div>
   </div>
 
-  <div *ngIf="events.length === 0" class="no-events">
-    <p>No events available at the moment. Please check back later.</p>
+  <!-- Empty state -->
+  <div *ngIf="events.length === 0 && !loading" class="no-events">
+    <div class="no-events-icon">📅</div>
+    <h3>No events available</h3>
+    <p>Check back later or create your own event</p>
+    <button class="primary-button">Create Event</button>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages > 1" class="pagination">
+    <button class="pagination-button"
+            (click)="onPageChange(currentPage - 1)"
+            [disabled]="currentPage === 0">
+      ←
+    </button>
+
+    <div class="page-numbers">
+      <span *ngFor="let page of getPageNumbers()"
+            [class.active]="page === currentPage + 1"
+            (click)="onPageChange(page - 1)">
+        {{ page }}
+      </span>
+    </div>
+
+    <button class="pagination-button"
+            (click)="onPageChange(currentPage + 1)"
+            [disabled]="currentPage === totalPages - 1">
+      →
+    </button>
   </div>
 </div>

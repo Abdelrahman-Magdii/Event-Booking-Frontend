@@ -15,9 +15,7 @@ export class FooterComponent {
   @Input() year: number = new Date().getFullYear();
   @Input() socialLinks = [
     { icon: 'facebook', url: '#' },
-    { icon: 'twitter', url: '#' },
-    { icon: 'linkedin', url: '#' },
-    { icon: 'instagram', url: '#' }
+    { icon: 'linkedin', url: '#' }
   ];
   @Input() footerLinks = [
     { label: 'Privacy Policy', url: '#' },

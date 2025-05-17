@@ -1,9 +1,10 @@
-import {Component, HostListener, Input} from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import {RouterLink, RouterLinkActive} from '@angular/router';
-import {MatButton, MatIconButton} from '@angular/material/button';
-import {AuthService} from '../../services/auth.service';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -12,58 +13,84 @@ import {AuthService} from '../../services/auth.service';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy {
   isScrolled = false;
   mobileMenuOpen = false;
-  appName = 'EventApp'; // Change this to your app name
+  appName = 'EventApp';
   showCta = true;
   ctaLabel = 'Get Started';
+  private authSub!: Subscription;
 
-  // Navigation items based on your routes
-  navItems = [
-    {path: '/events', label: 'Events'},
-    {path: '/login', label: 'Login'},
-    {path: '/register', label: 'Register'},
-  ];
+  navItems: {path: string, label: string}[] = [];
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
     this.isScrolled = window.scrollY > 50;
   }
 
+  constructor(
+    public authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    this.updateNavItems();
+    // Subscribe to authentication state changes
+    this.authSub = this.authService.isAuthenticated$.subscribe(() => {
+      this.updateNavItems();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.authSub) {
+      this.authSub.unsubscribe();
+    }
+  }
+
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 
-  constructor(private authService: AuthService) {
+  updateNavItems() {
+    if (this.authService.isAuthenticated()) {
+      this.navItems = [
+        { path: '/events', label: 'Events' },
+      ];
+
+      this.navItems.push({ path: '/logout', label: 'Logout' });
+
+      // Update CTA based on auth state
+      this.ctaLabel = this.authService.isAdmin() ? 'Create Event' : 'My Events';
+      this.showCta = true;
+    } else {
+      this.navItems = [
+        { path: '/events', label: 'Events' },
+        { path: '/login', label: 'Login' },
+        { path: '/register', label: 'Register' }
+      ];
+      this.ctaLabel = 'Get Started';
+      this.showCta = true;
+    }
   }
 
-  get isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
+  onNavItemClick(path: string) {
+    if (path === '/logout') {
+      this.authService.logout();
+      this.mobileMenuOpen = false;
+    } else {
+      this.mobileMenuOpen = false;
+    }
   }
 
   get isAdmin(): boolean {
     return this.authService.isAdmin();
   }
 
-  ngOnInit() {
-    this.updateNavItems();
-  }
-
-  updateNavItems() {
-    if (this.isLoggedIn) {
-      this.navItems = this.navItems.filter(item =>
-        item.path !== '/login' && item.path !== '/register'
-      );
-
-      this.navItems.push({path: '/logout', label: 'Logout'});
-    } else {
-      if (!this.navItems.some(item => item.path === '/login')) {
-        this.navItems.push({path: '/login', label: 'Login'});
-      }
-      if (!this.navItems.some(item => item.path === '/register')) {
-        this.navItems.push({path: '/register', label: 'Register'});
-      }
+  get userInitials(): string {
+    const user = this.authService.currentUserValue;
+    if (user) {
+      return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
     }
+    return '';
   }
 }

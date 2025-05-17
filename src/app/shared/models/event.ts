@@ -1,14 +1,16 @@
 export interface Event {
-  id: string;
-  name: string;
+  id?: number;
+  title: string;
   description: string;
-  category: string;
-  date: Date;
-  venue: string;
+  location: string;
+  startTime: Date;
+  endTime: Date;
+  userId?: number;
+  published: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  categories: string[];
+  tags: string[];
+  capacity: number;
   price: number;
-  imageUrl: string;
-  createdAt: Date;
-  updatedAt: Date;
-  startTime: string;
-  endTime: string;
 }

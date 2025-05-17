@@ -4,15 +4,11 @@
       <i class="icon check-circle"></i>
     </div>
     <h2>Booking Confirmed!</h2>
-    <p>Your booking for <strong>{{ event?.name }}</strong> has been confirmed.</p>
+    <p>Your booking for <strong>{{ event?.title }}</strong> has been confirmed.</p>
     <div class="confirmation-details">
       <div class="detail-item">
         <span class="label">Event Date:</span>
-        <span class="value">{{ event?.date | date:'fullDate' }}</span>
-      </div>
-      <div class="detail-item">
-        <span class="label">Venue:</span>
-        <span class="value">{{ event?.venue }}</span>
+        <span class="value">{{ event?.startTime | date:'fullDate' }}</span>
       </div>
       <div class="detail-item">
         <span class="label">Booking Reference:</span>

@@ -1,27 +1,49 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h2>Login</h2>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+<div class="login-container">
+  <div class="login-card">
+    <h2 class="login-title">Login</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div *ngIf="error" class="alert alert-danger">{{error}}</div>
+
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" formControlName="email" required>
-        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error-message">
-          Valid email is required
+        <input
+          type="email"
+          formControlName="email"
+          id="email"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
+        />
+        <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+          <div *ngIf="f['email'].errors['required']">Email is required</div>
+          <div *ngIf="f['email'].errors['email']">Please enter a valid email address</div>
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          formControlName="password"
+          id="password"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
+        />
+        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+          <div *ngIf="f['password'].errors['required']">Password is required</div>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" formControlName="password" required>
-        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-message">
-          Password is required
-        </div>
+        <button [disabled]="loading" class="btn btn-primary btn-block">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+          Login
+        </button>
       </div>
 
-      <button type="submit" [disabled]="!loginForm.valid" class="btn btn-primary">Login</button>
-
-      <div class="auth-footer">
-        <p>Don't have an account? <a routerLink="/register">Register</a></p>
+      <div class="register-link">
+        Don't have an account? <a routerLink="/register">Register</a>
       </div>
     </form>
   </div>

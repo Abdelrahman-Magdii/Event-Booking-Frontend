@@ -3,10 +3,18 @@
     <h2>Register</h2>
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="name">Full Name</label>
-        <input type="text" id="name" formControlName="name" required>
-        <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="error-message">
-          Name is required
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" formControlName="firstName" required>
+        <div *ngIf="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched" class="error-message">
+          First name is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" formControlName="lastName" required>
+        <div *ngIf="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched" class="error-message">
+          Last name is required
         </div>
       </div>
 
@@ -15,6 +23,14 @@
         <input type="email" id="email" formControlName="email" required>
         <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error-message">
           Valid email is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="phoneNumber">Phone Number</label>
+        <input type="tel" id="phoneNumber" formControlName="phoneNumber" required placeholder="+1234567890">
+        <div *ngIf="registerForm.get('phoneNumber')?.invalid && registerForm.get('phoneNumber')?.touched" class="error-message">
+          Valid phone number is required
         </div>
       </div>
 
@@ -34,7 +50,14 @@
         </div>
       </div>
 
-      <button type="submit" [disabled]="!registerForm.valid" class="btn btn-primary">Register</button>
+      <button type="submit" [disabled]="!registerForm.valid || loading" class="btn btn-primary">
+        <span *ngIf="loading">Registering...</span>
+        <span *ngIf="!loading">Register</span>
+      </button>
+
+      <div *ngIf="error" class="error-message text-center mt-3">
+        {{ error }}
+      </div>
 
       <div class="auth-footer">
         <p>Already have an account? <a routerLink="/login">Login</a></p>

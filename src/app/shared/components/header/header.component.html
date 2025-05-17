@@ -8,18 +8,23 @@
       <a *ngFor="let item of navItems"
          routerLink="{{item.path}}"
          routerLinkActive="active"
-         [routerLinkActiveOptions]="{exact: true}">
+         [routerLinkActiveOptions]="{exact: true}"
+         (click)="onNavItemClick(item.path)">
         {{ item.label }}
       </a>
 
-      <!-- Conditionally show admin link if user is admin -->
       <a *ngIf="isAdmin" routerLink="/admin/dashboard" routerLinkActive="active">
         Admin
       </a>
+
+      <div *ngIf="authService.isAuthenticated()" class="user-profile">
+        <span class="user-initials">{{ userInitials }}</span>
+      </div>
     </nav>
 
     <div class="cta-container" *ngIf="showCta">
-      <button mat-flat-button color="primary" class="cta-button" routerLink="/register">
+      <button mat-flat-button color="primary" class="cta-button"
+              [routerLink]="isAdmin ? '/admin/events/create' : (authService.isAuthenticated() ? '/profile' : '/register')">
         {{ ctaLabel }}
       </button>
     </div>
@@ -34,18 +39,25 @@
        routerLink="{{item.path}}"
        routerLinkActive="active"
        [routerLinkActiveOptions]="{exact: true}"
-       (click)="mobileMenuOpen = false">
+       (click)="onNavItemClick(item.path)">
       {{ item.label }}
     </a>
 
-    <!-- Conditionally show admin link if user is admin -->
     <a *ngIf="isAdmin" routerLink="/admin/dashboard"
        routerLinkActive="active"
        (click)="mobileMenuOpen = false">
       Admin
     </a>
 
-    <button *ngIf="showCta" mat-flat-button color="primary" class="mobile-cta" routerLink="/register">
+    <div *ngIf="authService.isAuthenticated()" class="user-profile mobile">
+      <span class="user-initials">{{ userInitials }}</span>
+      <span class="user-name">
+        {{ authService.currentUserValue?.firstName }} {{ authService.currentUserValue?.lastName }}
+      </span>
+    </div>
+
+    <button *ngIf="showCta" mat-flat-button color="primary" class="mobile-cta"
+            [routerLink]="isAdmin ? '/admin/events/create' : (authService.isAuthenticated() ? '/profile' : '/register')">
       {{ ctaLabel }}
     </button>
   </div>

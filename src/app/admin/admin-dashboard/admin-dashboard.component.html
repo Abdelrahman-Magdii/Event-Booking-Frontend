@@ -1,35 +1,140 @@
-<div class="admin-dashboard">
-  <div class="admin-header">
-    <h1>Admin Dashboard</h1>
-    <div class="admin-actions">
-      <a routerLink="/admin/events/create" class="btn btn-create">Create New Event</a>
-      <a routerLink="/events" class="btn btn-back">Back to Events</a>
-    </div>
+<div class="admin-dashboard-container">
+  <div class="header">
+    <h1>Event Management</h1>
+    <button mat-raised-button color="primary" routerLink="/admin/events/create">
+      <mat-icon>add</mat-icon> Create New Event
+    </button>
   </div>
 
-  <div class="admin-content">
-    <h2>Manage Events</h2>
+  <div class="search-bar">
+    <mat-form-field appearance="outline" floatLabel="always">
+      <mat-label>Search Events</mat-label>
+      <input matInput [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" placeholder="Search by title, location...">
+      <button matSuffix mat-icon-button (click)="onSearch()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
 
+  <div *ngIf="loading" class="loading-spinner">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading events...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <mat-icon>error_outline</mat-icon>
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error" class="events-container">
     <div *ngIf="events.length === 0" class="no-events">
-      <p>No events found. Create your first event.</p>
+      <mat-icon class="no-events-icon">event_busy</mat-icon>
+      <h3>No events found</h3>
+      <p *ngIf="searchQuery">Try adjusting your search query</p>
+      <button mat-raised-button color="primary" routerLink="/admin/events/create">
+        Create your first event
+      </button>
     </div>
 
-    <div class="events-list">
-      <div *ngFor="let event of events" class="admin-event-card">
-        <div class="event-image">
-          <img [src]="event.imageUrl" [alt]="event.name">
-        </div>
-        <div class="event-details">
-          <h3>{{ event.name }}</h3>
-          <p class="event-date">{{ event.date | date:'mediumDate' }}</p>
-          <p class="event-venue">{{ event.venue }}</p>
-          <p class="event-price">{{ event.price | currency:'USD':'symbol':'1.2-2' }}</p>
-        </div>
-        <div class="event-actions">
-          <button (click)="editEvent(event.id)" class="btn btn-edit">Edit</button>
-          <button (click)="deleteEvent(event.id)" class="btn btn-delete">Delete</button>
-        </div>
-      </div>
+    <div *ngIf="events.length > 0" class="events-table-container">
+      <table mat-table [dataSource]="events" matSort (matSortChange)="onSortChange($event)" class="mat-elevation-z8">
+        <!-- Title Column -->
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+          <td mat-cell *matCellDef="let event">
+            <span class="event-title">{{ event.title }}</span>
+            <div class="event-categories">
+              <mat-chip-set>
+                <mat-chip *ngFor="let category of event.categories" class="category-chip">
+                  {{ category }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Date Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="startTime">Date</th>
+          <td mat-cell *matCellDef="let event">
+            <div class="event-date">
+              <strong>{{ event.startTime | date:'mediumDate' }}</strong>
+              <div class="event-time">
+                {{ event.startTime | date:'shortTime' }} - {{ event.endTime | date:'shortTime' }}
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Location Column -->
+        <ng-container matColumnDef="location">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="location">Location</th>
+          <td mat-cell *matCellDef="let event" class="event-location">
+            <mat-icon>location_on</mat-icon>
+            {{ event.location }}
+          </td>
+        </ng-container>
+
+        <!-- Capacity Column -->
+        <ng-container matColumnDef="capacity">
+          <th mat-header-cell *matHeaderCellDef>Capacity</th>
+          <td mat-cell *matCellDef="let event">
+            <div class="capacity-info">
+              <span>{{ event.capacity }} spots</span>
+              <span class="price">${{ event.price | number:'1.2-2' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let event">
+            <span class="status-badge" [class]="getStatusColor(event)">
+              {{ getStatusColor(event) | uppercase }}
+            </span>
+            <div *ngIf="!event.published" class="draft-badge">DRAFT</div>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let event">
+            <div class="actions-container">
+              <button mat-icon-button color="primary"
+                      (click)="editEvent(event.id)"
+                      matTooltip="Edit event"
+                      aria-label="Edit event">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn"
+                      (click)="deleteEvent(event.id)"
+                      matTooltip="Delete event"
+                      aria-label="Delete event">
+                <mat-icon>delete</mat-icon>
+              </button>
+              <a mat-icon-button color="accent"
+                 [routerLink]="['/events', event.id]"
+                 matTooltip="View event"
+                 aria-label="View event">
+                <mat-icon>visibility</mat-icon>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator [length]="totalEvents"
+                     [pageSize]="pageSize"
+                     [pageIndex]="currentPage"
+                     [pageSizeOptions]="[5, 10, 25, 100]"
+                     (page)="onPageChange($event)"
+                     aria-label="Select page">
+      </mat-paginator>
     </div>
   </div>
 </div>

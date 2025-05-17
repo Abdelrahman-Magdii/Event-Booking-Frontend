@@ -40,4 +40,30 @@ export class BookingService {
     console.error(error);
     return throwError(() => new Error(errorMessage));
   }
+
+  getUserBookings(): Observable<Booking[]> {
+    const url = `${this.apiUrl}/user`;  // adjust this if your endpoint differs
+    return this.http.get<{ data: Booking[] }>(url, {
+      headers: new HttpHeaders({
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      })
+    }).pipe(
+      map(response => response.data),
+      catchError(this.handleError)
+    );
+  }
+
+  createBooking(eventId: string): Observable<Booking> {
+    return this.http.post<{ data: Booking }>(this.apiUrl, { eventId }, {
+      headers: new HttpHeaders({
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      })
+    }).pipe(
+      map(response => response.data),
+      catchError(this.handleError)
+    );
+  }
+
 }
