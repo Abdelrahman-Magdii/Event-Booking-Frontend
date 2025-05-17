@@ -46,7 +46,7 @@ export class EventService {
     }
   }
 
-  getEvents(page: number = 0, size: number = 10, sortField: string, sortDirection: string, searchQuery: string): Observable<Page<Event>> {
+  getEvents(page: number = 0, size: number = 10): Observable<Page<Event>> {
     console.log('Getting events...'+this.getHeaders());
     return this.http.get<Page<Event>>(this.apiUrl, {
       params: { page: page.toString(), size: size.toString() },
@@ -65,17 +65,7 @@ export class EventService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  searchEvents(query: string): Observable<Event[]> {
-    return this.http.get<Event[]>(`${this.apiUrl}/search`, { params: { q: query } });
-  }
 
-  getEventsByCategory(category: string): Observable<Event[]> {
-    return this.http.get<Event[]>(`${this.apiUrl}/category/${category}`);
-  }
-
-  getUpcomingEvents(): Observable<Event[]> {
-    return this.http.get<Event[]>(`${this.apiUrl}/upcoming`);
-  }
 
   createEvent(userId: Number | null, eventData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}?userId=${userId}`, eventData);

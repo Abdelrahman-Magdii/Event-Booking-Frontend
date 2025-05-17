@@ -138,7 +138,7 @@ export class EventCreateEditComponent implements OnInit {
       tags: tags
     };
 
-    const userId = this.getUserIdFromToken() || 3; // fallback
+    const userId = this.getUserIdFromToken();
 
     if (this.isEditMode && this.eventId) {
       this.eventService.updateEvent(this.eventId, eventData).subscribe({

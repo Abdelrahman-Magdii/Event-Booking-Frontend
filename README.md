@@ -1,60 +1,161 @@
-# EventBookingFrontend
+Here's a comprehensive README.md file for your Event Booking Frontend using Angular 19, based on the task requirements:
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.12.
+```markdown
+# Event Booking System - Frontend
 
-## Development server
+This Angular 19 frontend application is part of a full-stack event booking system that allows users to browse and book events, while providing an admin panel for event management.
 
-To start a local development server, run:
+## Features
 
+### User Features
+- **Authentication**: User registration and login
+- **Event Browsing**: View all available events in a grid layout
+- **Event Details**: View complete event information
+- **Booking**: Book tickets for events (1 ticket per click)
+- **Booking Confirmation**: Congratulations screen after successful booking
+
+### Admin Features
+- **Event Management**: Create, Read, Update, and Delete events
+- **Admin Panel**: Dedicated interface for administrators
+
+## Tech Stack
+- Angular 19
+- Angular Material (or alternative UI library)
+- RxJS for state management
+- Angular Router for navigation
+- JWT for authentication
+
+## Prerequisites
+- Node.js (v18 or higher)
+- npm (v9 or higher) or yarn
+- Angular CLI (v19.2.12)
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/your-username/event-booking-frontend.git
+cd event-booking-frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+## Configuration
+
+Create an environment file at `src/environments/environment.ts` with your backend API URL:
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://your-backend-api-url.com/api',
+  authUrl: 'http://your-backend-api-url.com/auth'
+};
+```
+
+## Development Server
+
+Run the development server:
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Navigate to `http://localhost:4200/`. The app will automatically reload if you change any source files.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+## Project Structure
+```
+src/
+├── app/
+│   ├── auth/                  # Authentication components
+│   ├── admin/                 # Admin panel components
+│   ├── events/                # Event-related components
+│   ├── shared/                # Shared components and services
+│   ├── models/                # Data models and interfaces
+│   ├── guards/                # Route guards
+│   ├── interceptors/          # HTTP interceptors
+│   └── app-routing.module.ts  # Application routes
+├── assets/                    # Static assets
+└── environments/              # Environment configurations
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Build
+
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
 ```bash
-ng generate --help
+ng build --configuration production
 ```
 
-## Building
+## Running Tests
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
+Run unit tests:
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
+## Implementation Notes
 
-For end-to-end (e2e) testing, run:
+### Key Components
+- **AuthService**: Handles user authentication
+- **EventService**: Manages event data and bookings
+- **AdminGuard**: Protects admin routes
+- **AuthGuard**: Protects authenticated routes
 
-```bash
-ng e2e
+### Important Features Implemented
+- Role-based access control (User/Admin)
+- Event booking system with visual feedback
+- Admin CRUD operations for events
+- Responsive event grid layout
+
+## Backend Integration
+
+The frontend expects the following API endpoints from your backend:
+
+### Authentication
+- POST `/auth/register` - User registration
+- POST `/auth/login` - User login
+
+### Events
+- GET `/events` - Get all events
+- GET `/events/:id` - Get single event
+- POST `/events` - Create event (admin only)
+- PUT `/events/:id` - Update event (admin only)
+- DELETE `/events/:id` - Delete event (admin only)
+
+### Bookings
+- POST `/bookings` - Create booking
+- GET `/bookings/user/:userId` - Get user bookings
+
+## Screenshots
+
+(Add screenshots of your application here when available)
+
+## Future Enhancements
+- Implement pagination for event listings
+- Add event categories and filtering
+- Dark mode support
+- Multi-language support (English/Arabic)
+
+## Submission
+
+This project was submitted as part of the Event Booking System task by [Your Name] on [Submission Date].
+
+**Important**: This project was developed without any AI assistance in accordance with the task guidelines.
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+This README includes:
+1. Clear project description and features
+2. Installation and setup instructions
+3. Project structure overview
+4. Development and build commands
+5. Backend API requirements
+6. Compliance with task requirements (no AI assistance)
+7. Space for screenshots
+8. Future enhancement ideas
 
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-# Event-Booking-Frontend
+You can customize it further by:
+- Adding actual screenshots of your application
+- Including specific version numbers of dependencies
+- Adding any additional setup steps specific to your implementation
+- Including contribution guidelines if applicable
