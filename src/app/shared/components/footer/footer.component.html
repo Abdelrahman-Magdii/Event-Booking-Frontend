@@ -1,0 +1,41 @@
+<footer class="footer">
+  <div class="footer-top">
+    <div class="container">
+      <div class="footer-brand">
+        <mat-icon class="footer-logo">rocket_launch</mat-icon>
+        <h3 class="footer-title">{{ companyName }}</h3>
+        <p class="footer-text">Building the future with innovative solutions</p>
+
+        <div class="social-links">
+          <a *ngFor="let link of socialLinks" [href]="link.url" target="_blank" rel="noopener">
+            <mat-icon>{{ link.icon }}</mat-icon>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <h4 class="links-title">Quick Links</h4>
+        <ul>
+          <li *ngFor="let link of footerLinks">
+            <a [href]="link.url">{{ link.label }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-newsletter" *ngIf="showNewsletter">
+        <h4 class="newsletter-title">Stay Updated</h4>
+        <p>Subscribe to our newsletter for the latest updates</p>
+        <div class="newsletter-form">
+          <input type="email" placeholder="Your email address">
+          <button mat-flat-button color="primary">Subscribe</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container">
+      <p>&copy; {{ year }} {{ companyName }}. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

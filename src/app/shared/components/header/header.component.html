@@ -1,0 +1,52 @@
+<header class="header" [class.scrolled]="isScrolled">
+  <div class="container">
+    <div class="logo-container">
+      <a routerLink="/" class="app-name">{{ appName }}</a>
+    </div>
+
+    <nav class="desktop-nav">
+      <a *ngFor="let item of navItems"
+         routerLink="{{item.path}}"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: true}">
+        {{ item.label }}
+      </a>
+
+      <!-- Conditionally show admin link if user is admin -->
+      <a *ngIf="isAdmin" routerLink="/admin/dashboard" routerLinkActive="active">
+        Admin
+      </a>
+    </nav>
+
+    <div class="cta-container" *ngIf="showCta">
+      <button mat-flat-button color="primary" class="cta-button" routerLink="/register">
+        {{ ctaLabel }}
+      </button>
+    </div>
+
+    <button mat-icon-button class="mobile-menu-button" (click)="toggleMobileMenu()">
+      <mat-icon>{{ mobileMenuOpen ? 'close' : 'menu' }}</mat-icon>
+    </button>
+  </div>
+
+  <div class="mobile-nav" [class.open]="mobileMenuOpen">
+    <a *ngFor="let item of navItems"
+       routerLink="{{item.path}}"
+       routerLinkActive="active"
+       [routerLinkActiveOptions]="{exact: true}"
+       (click)="mobileMenuOpen = false">
+      {{ item.label }}
+    </a>
+
+    <!-- Conditionally show admin link if user is admin -->
+    <a *ngIf="isAdmin" routerLink="/admin/dashboard"
+       routerLinkActive="active"
+       (click)="mobileMenuOpen = false">
+      Admin
+    </a>
+
+    <button *ngIf="showCta" mat-flat-button color="primary" class="mobile-cta" routerLink="/register">
+      {{ ctaLabel }}
+    </button>
+  </div>
+</header>

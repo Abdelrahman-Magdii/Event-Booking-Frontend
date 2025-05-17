@@ -1,0 +1,27 @@
+<div class="confirmation-container">
+  <div class="confirmation-card">
+    <div class="confirmation-icon">
+      <i class="icon check-circle"></i>
+    </div>
+    <h2>Booking Confirmed!</h2>
+    <p>Your booking for <strong>{{ event?.name }}</strong> has been confirmed.</p>
+    <div class="confirmation-details">
+      <div class="detail-item">
+        <span class="label">Event Date:</span>
+        <span class="value">{{ event?.date | date:'fullDate' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Venue:</span>
+        <span class="value">{{ event?.venue }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Booking Reference:</span>
+        <span class="value">{{ bookingId }}</span>
+      </div>
+    </div>
+    <div class="confirmation-actions">
+      <a routerLink="/events" class="btn btn-primary">Browse More Events</a>
+      <a routerLink="/events/{{event?.id}}" class="btn btn-secondary">View Event Details</a>
+    </div>
+  </div>
+</div>

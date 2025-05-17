@@ -1,0 +1,49 @@
+<div class="confirm-dialog-container">
+  <!-- Header Section -->
+  <div *ngIf="data.header" class="dialog-header">
+    <h2>{{ data.header }}</h2>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dialog-content">
+    <h1 class="dialog-title">{{ data.title }}</h1>
+
+    <div class="dialog-message">
+      <p>{{ data.message }}</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="currentErrorMessage" class="error-message">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <span class="error-text">{{ currentErrorMessage }}</span>
+      <button mat-icon-button (click)="dismissError()" class="close-error">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <div *ngIf="data.footer" class="dialog-footer">
+    <p>{{ data.footer }}</p>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="dialog-actions">
+    <button mat-stroked-button
+            (click)="onCancel()"
+            [disabled]="isLoading"
+            class="cancel-button">
+      {{ data.cancelText }}
+    </button>
+    <button mat-flat-button
+            color="primary"
+            (click)="onConfirm()"
+            [disabled]="isLoading"
+            class="confirm-button">
+      <span *ngIf="!isLoading">{{ data.confirmText }}</span>
+      <span *ngIf="isLoading">
+        <mat-spinner diameter="20" color="accent"></mat-spinner>
+      </span>
+    </button>
+  </div>
+</div>

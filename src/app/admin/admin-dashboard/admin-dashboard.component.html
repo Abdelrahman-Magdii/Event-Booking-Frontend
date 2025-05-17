@@ -1,0 +1,35 @@
+<div class="admin-dashboard">
+  <div class="admin-header">
+    <h1>Admin Dashboard</h1>
+    <div class="admin-actions">
+      <a routerLink="/admin/events/create" class="btn btn-create">Create New Event</a>
+      <a routerLink="/events" class="btn btn-back">Back to Events</a>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    <h2>Manage Events</h2>
+
+    <div *ngIf="events.length === 0" class="no-events">
+      <p>No events found. Create your first event.</p>
+    </div>
+
+    <div class="events-list">
+      <div *ngFor="let event of events" class="admin-event-card">
+        <div class="event-image">
+          <img [src]="event.imageUrl" [alt]="event.name">
+        </div>
+        <div class="event-details">
+          <h3>{{ event.name }}</h3>
+          <p class="event-date">{{ event.date | date:'mediumDate' }}</p>
+          <p class="event-venue">{{ event.venue }}</p>
+          <p class="event-price">{{ event.price | currency:'USD':'symbol':'1.2-2' }}</p>
+        </div>
+        <div class="event-actions">
+          <button (click)="editEvent(event.id)" class="btn btn-edit">Edit</button>
+          <button (click)="deleteEvent(event.id)" class="btn btn-delete">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

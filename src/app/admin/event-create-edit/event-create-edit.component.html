@@ -1,0 +1,90 @@
+<div class="event-form-container">
+  <div class="form-header">
+    <h1>{{ isEditMode ? 'Edit Event' : 'Create New Event' }}</h1>
+    <a routerLink="/admin/dashboard" class="btn btn-back">Back to Dashboard</a>
+  </div>
+
+  <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="event-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="name">Event Name</label>
+        <input type="text" id="name" formControlName="name" required>
+        <div *ngIf="eventForm.get('name')?.invalid && eventForm.get('name')?.touched" class="error-message">
+          Event name is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" formControlName="category" required>
+          <option value="">Select a category</option>
+          <option value="music">Music</option>
+          <option value="sports">Sports</option>
+          <option value="arts">Arts</option>
+          <option value="food">Food & Drink</option>
+          <option value="business">Business</option>
+          <option value="technology">Technology</option>
+        </select>
+        <div *ngIf="eventForm.get('category')?.invalid && eventForm.get('category')?.touched" class="error-message">
+          Category is required
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" rows="5" required></textarea>
+      <div *ngIf="eventForm.get('description')?.invalid && eventForm.get('description')?.touched" class="error-message">
+        Description is required
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="date">Date & Time</label>
+        <input type="datetime-local" id="date" formControlName="date" required>
+        <div *ngIf="eventForm.get('date')?.invalid && eventForm.get('date')?.touched" class="error-message">
+          Date and time are required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price ($)</label>
+        <input type="number" id="price" formControlName="price" min="0" step="0.01" required>
+        <div *ngIf="eventForm.get('price')?.invalid && eventForm.get('price')?.touched" class="error-message">
+          Valid price is required
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="venue">Venue</label>
+        <input type="text" id="venue" formControlName="venue" required>
+        <div *ngIf="eventForm.get('venue')?.invalid && eventForm.get('venue')?.touched" class="error-message">
+          Venue is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="imageUrl">Image URL</label>
+        <input type="url" id="imageUrl" formControlName="imageUrl" required>
+        <div *ngIf="eventForm.get('imageUrl')?.invalid && eventForm.get('imageUrl')?.touched" class="error-message">
+          Valid image URL is required
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="imageUrl" class="image-preview">
+      <h3>Image Preview</h3>
+      <img [src]="imageUrl" alt="Event preview">
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="!eventForm.valid" class="btn btn-submit">
+        {{ isEditMode ? 'Update Event' : 'Create Event' }}
+      </button>
+      <button type="button" (click)="onCancel()" class="btn btn-cancel">Cancel</button>
+    </div>
+  </form>
+</div>

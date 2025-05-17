@@ -1,0 +1,156 @@
+.event-details-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.event-header h1 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 2rem;
+}
+
+.event-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.btn {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.btn-edit {
+  background-color: #f39c12;
+  color: white;
+}
+
+.btn-back {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.event-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.event-image {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.event-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.event-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.event-meta {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.meta-item {
+  display: flex;
+  margin-bottom: 0.8rem;
+}
+
+.meta-item:last-child {
+  margin-bottom: 0;
+}
+
+.meta-label {
+  font-weight: 600;
+  color: #2c3e50;
+  min-width: 80px;
+}
+
+.meta-value {
+  color: #555;
+}
+
+.event-description {
+  margin-bottom: 2rem;
+}
+
+.event-description h3 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+.event-description p {
+  line-height: 1.6;
+  color: #555;
+}
+
+.booking-section {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.btn-book {
+  background-color: #3498db;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.booked-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #2ecc71;
+  color: white;
+  padding: 0.8rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.login-prompt {
+  text-align: center;
+  color: #666;
+}
+
+.login-prompt a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .event-content {
+    grid-template-columns: 1fr;
+  }
+}
